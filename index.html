@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    body {
+        background-color: #181818;
+        /* text-align: center; */
+        padding: 3% 8%;
+    }
+    
+    .graticule {
+        fill: none;
+        stroke: black;
+        stroke-opacity: .5;
+        stroke-width: .5px;
+        display: none;
+    }
+    
+    .land {
+        fill: #E7BA7F;
+        stroke: #676767;
+        stroke-width: .5px;
+        cursor: pointer;
+    }
+    
+    svg {
+        margin-left: 8em;
+    }
+    
+    .land:hover {
+        /* fill: #BB945D; */
+        fill: #9A7B50;
+    }
+    
+    ol {
+        padding-inline-start: 0px;
+    }
+    
+    li {
+        margin-left: 40px;
+    }
+    
+    #container {
+        /* display: flex; */
+        display: none;
+        margin-top: 25px;
+    }
+    
+    #container-inicio {
+        text-align: center;
+        margin-top: 100px;
+    }
+    
+    .box-1,
+    .box-2 {
+        order: 3;
+    }
+    
+    .box-2 {
+        background-color: #9A7B50;
+        /* height: 850px; */
+        /* width: 475px; */
+        width: 400px;
+        border-radius: 10px;
+        /* text-align: center; */
+    }
+    
+    .title-wrapper {
+        margin: 15px 15px 10px 15px;
+        text-align: center;
+        border-radius: 10px;
+        background-color: #E7BA7F;
+        line-height: 1em;
+        padding: 5px;
+    }
+    
+    .datos-wrapper {
+        margin: 0 15px 15px 15px;
+        background-color: #E7BA7F;
+        border-radius: 10px;
+        padding: 10px 15px;
+        color: black;
+    }
+    
+    #btn-iniciar {
+        background-color: #E7BA7F;
+        border-radius: 5px;
+        padding: 8px 12px;
+        width: 50px;
+        text-align: center;
+        border: 2px solid gray;
+        cursor: pointer;
+        margin: 0 auto;
+    }
+    
+    #btn-iniciar:hover {
+        background-color: #9A7B50;
+    }
+    
+    #container-inicio>h1 {
+        color: #E7BA7F;
+        font-size: 60px;
+        text-align: center;
+    }
+</style>
+
+<body>
+    <!-- <h3 style="color: white;" id='titulo'>asdasd</h3> -->-->
+    <!-- <button id='btn-activar'>clic</button> -->
+    <div id="container-inicio">
+        <h1>Estadísticas sobre población penitenciaria argentina - 2017</h1>
+        <p id="btn-iniciar">Iniciar</p>
+    </div>
+    <div id="container">
+        <div class="box-1">
+
+            <!-- <script src="http://d3js.org/d3.v3.min.js"></script>
+            <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+            <script src="http://d3js.org/topojson.v1.min.js"></script> -->
+            <script src="./d3.v3.min.js"></script>
+            <script src="./d3.geo.projection.v0.min.js"></script>
+            <script src="./topojson.v1.min.js"></script>
+            <script>
+                var width = 300,
+                    height = 450;
+
+                var projection = d3.geo.transverseMercator()
+                    .center([2.5, -38.5])
+                    .rotate([66, 0])
+                    .scale((height * 56.5) / 33)
+                    .translate([(width / 2), (height / 2)]);
+
+                var svg = d3.select(".box-1")
+                    .append("svg")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .attr("id", "id-svg-mapa");
+
+                var path = d3.geo.path()
+                    .projection(projection);
+
+                var graticule = d3.geo.graticule()
+                    .extent([
+                        [-180, -90],
+                        [0, 0]
+                    ])
+                    .step([6, 6]);
+
+                svg.append("path")
+                    .datum(graticule)
+                    .attr("class", "graticule")
+                    .attr("d", path);
+
+                d3.json("argentina_indec.json", function(error, json) {
+
+                    svg.selectAll("text")
+                        .data(topojson.feature(json, json.objects.provincias).features)
+                        .enter()
+                        .append("path")
+                        .attr("d", path)
+                        .attr("class", "land");
+
+                });
+
+                d3.select(self.frameElement).style("height", height + "px");
+            </script>
+
+        </div>
+        <div class="box-2">
+            <div class="title-wrapper">
+                <h2 id='title_prov'>Argentina</h2>
+
+            </div>
+            <div class="datos-wrapper">
+                <p id='lbl_q-presos'></p>
+                <p id='lbl_prom-edad'></p>
+                <p id='lbl_prom-condena'></p>
+                <p id='lbl_delitos'></p>
+                <p id='lbl_prom-academico'></p>
+                <p id='lbl_profesion'></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var svgholder = document.getElementById("id-svg-mapa");
+
+        btnIniciar = document.getElementById('btn-iniciar');
+        container = document.getElementById('container');
+        containerInicio = document.getElementById('container-inicio');
+        btnIniciar.addEventListener('click', function() {
+            containerInicio.style.display = 'none';
+            container.style.display = 'flex';
+        })
+
+        svgholder.onload = function() {
+            setTimeout(function() {
+
+
+                mpCABA = document.getElementsByTagName('path')[1]
+                mpBuenosAires = document.getElementsByTagName('path')[2]
+                mpCatamarca = document.getElementsByTagName('path')[3]
+                mpChaco = document.getElementsByTagName('path')[4]
+                mpChubut = document.getElementsByTagName('path')[5]
+                mpCordoba = document.getElementsByTagName('path')[6]
+                mpCorrientes = document.getElementsByTagName('path')[7]
+                mpEntreRios = document.getElementsByTagName('path')[8]
+                mpFormosa = document.getElementsByTagName('path')[9]
+                mpJujuy = document.getElementsByTagName('path')[10]
+                mpLaPampa = document.getElementsByTagName('path')[11]
+                mpLaRioja = document.getElementsByTagName('path')[12]
+                mpMendoza = document.getElementsByTagName('path')[13]
+                mpMisiones = document.getElementsByTagName('path')[14]
+                mpNeuquen = document.getElementsByTagName('path')[15]
+                mpRioNegro = document.getElementsByTagName('path')[16]
+                mpSalta = document.getElementsByTagName('path')[17]
+                mpSanJuan = document.getElementsByTagName('path')[18]
+                mpSanLuis = document.getElementsByTagName('path')[19]
+                mpSantaCruz = document.getElementsByTagName('path')[20]
+                mpSantaFe = document.getElementsByTagName('path')[21]
+                mpSantiagoEstero = document.getElementsByTagName('path')[22]
+                mpTierraFuego = document.getElementsByTagName('path')[23]
+                mpTucuman = document.getElementsByTagName('path')[24]
+
+                lblTitulo = document.getElementById('title_prov')
+
+                lblPresos = document.getElementById('lbl_q-presos')
+                lblEdad = document.getElementById('lbl_prom-edad')
+                lblAcademico = document.getElementById('lbl_prom-academico')
+                lblCondena = document.getElementById('lbl_prom-condena')
+                lblDelitos = document.getElementById('lbl_delitos')
+                lblProfesion = document.getElementById('lbl_profesion')
+
+                lblTitulo.innerHTML = 'Argentina'
+                lblPresos.innerHTML = 'Cantidad total de internos: 85.283'
+                lblEdad.innerHTML = 'Edad promedio: 34 años'
+                lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                lblCondena.innerHTML = 'Tiempo promedio de condena: 4 años'
+                lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li>
+                        <li>Homicidios dolosos</li> 
+                    </ol>
+                `
+                lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+
+
+                mpBuenosAires.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Buenos Aires'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 43.317'
+                    lblEdad.innerHTML = 'Edad promedio: 33 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 3 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Homicidios dolosos</li> 
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li>
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpCatamarca.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Catamarca'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 579'
+                    lblEdad.innerHTML = 'Edad promedio: 37 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 6 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Otros delitos contra la integridad sexual</li> 
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li>
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpCordoba.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Córdoba'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 8.387'
+                    lblEdad.innerHTML = 'Edad promedio: 34 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 3 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Otros delitos contra las personas</li> 
+                        <li>Violaciones</li>
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpCorrientes.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Corrientes'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 1.127'
+                    lblEdad.innerHTML = 'Edad promedio: 35 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 6 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Violaciones</li>
+                        <li>Homicioios culposos</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpChaco.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Chaco'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 1.931'
+                    lblEdad.innerHTML = 'Edad promedio: 35 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 6 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Homicidios dolosos</li> 
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li>
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpChubut.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Chubut'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 1.070'
+                    lblEdad.innerHTML = 'Edad promedio: 34 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 6 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Hurto y/o tentativa de hurto</li>
+                        <li>Homicidios dolosos</li> 
+                        <li>Robo y/o tentativa de robo</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpEntreRios.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Entre Ríos'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 2.158'
+                    lblEdad.innerHTML = 'Edad promedio: 34 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 5 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li>
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Violaciones</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: Tiene algún oficio'
+                })
+
+                mpFormosa.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Formosa'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 738'
+                    lblEdad.innerHTML = 'Edad promedio: 34 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 4 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li>
+                        <li>Homicidios dolosos</li> 
+                        <li>Robo y/o tentativa de robo</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpJujuy.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Jujuy'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 1.132'
+                    lblEdad.innerHTML = 'Edad promedio: 35 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 4 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Violaciones</li> 
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li>
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpLaPampa.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: La Pampa'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 826'
+                    lblEdad.innerHTML = 'Edad promedio: 35 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Secundario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 5 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li>
+                        <li>Violaciones</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpLaRioja.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: La Rioja'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 379'
+                    lblEdad.innerHTML = 'Edad promedio: 35 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Secundario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 6 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Homicidios dolosos</li>
+                        <li>Violaciones</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpMendoza.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Mendoza'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 4.605'
+                    lblEdad.innerHTML = 'Edad promedio: 33 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 5 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Homicidios dolosos</li>
+                        <li>Violaciones</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: Tiene algún oficio'
+                })
+
+                mpMisiones.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Misiones'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 1.696'
+                    lblEdad.innerHTML = 'Edad promedio: 36 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 4 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Violaciones</li> 
+                        <li>Homicidios dolosos</li>
+                        <li>Robo y/o tentativa de robo</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpNeuquen.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Neuquén'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 938'
+                    lblEdad.innerHTML = 'Edad promedio: 37 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Secundario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 8 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Violaciones</li> 
+                        <li>Hurto y/o tentativa de hurto</li> 
+                        <li>Homicidios dolosos</li>
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: Tiene algún oficio'
+                })
+
+                mpRioNegro.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Río Negro'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 1.443'
+                    lblEdad.innerHTML = 'Edad promedio: 35 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Secundario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 7 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Homicidios dolosos</li>
+                        <li>Violaciones</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpSalta.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Salta'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 3.593'
+                    lblEdad.innerHTML = 'Edad promedio: 35 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 4 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li> 
+                        <li>Otros delitos contra la propiedad</li>
+                        <li>Otros delitos contra las personas</li>
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpSanJuan.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: San Juan'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 1.349'
+                    lblEdad.innerHTML = 'Edad promedio: 34 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 5 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Violaciones</li> 
+                        <li>Homicidios dolosos</li>
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpSanLuis.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: San Luis'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 699'
+                    lblEdad.innerHTML = 'Edad promedio: 36 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 4 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Homicidios dolosos</li>
+                        <li>Violaciones</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpSantaCruz.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Santa Cruz'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 507'
+                    lblEdad.innerHTML = 'Edad promedio: 36 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Secundario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 5 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Homicidios dolosos</li>
+                        <li>Delitos contra el honor</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: Tiene algún oficio'
+                })
+
+                mpSantaFe.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Santa Fe'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 4.931'
+                    lblEdad.innerHTML = 'Edad promedio: 31 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 5 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Homicidios dolosos</li>
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+                mpSantiagoEstero.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Santiago Del Estero'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 607'
+                    lblEdad.innerHTML = 'Edad promedio: 38 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 6 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Homicidios dolosos</li>
+                        <li>Violaciones</li> 
+                        <li>Infracción ley n° 23.737 (estupefacientes)</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: Tiene algún oficio'
+                })
+
+                mpTierraFuego.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Tierra del Fuego'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 177'
+                    lblEdad.innerHTML = 'Edad promedio: 36 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Secundario incompleto'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 7 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Violaciones</li> 
+                        <li>Homicidios dolosos</li>
+                        <li>Hurto y/o tentativa de hurto</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: Tiene algún oficio'
+                })
+
+                mpTucuman.addEventListener('click', function() {
+                    lblTitulo.innerHTML = 'Provincia: Tucumán'
+                    lblPresos.innerHTML = 'Cantidad total de internos: 1.275'
+                    lblEdad.innerHTML = 'Edad promedio: 35 años'
+                    lblAcademico.innerHTML = 'Nivel académico promedio: Primario completo'
+                    lblCondena.innerHTML = 'Tiempo promedio de condena: 4 años'
+                    lblDelitos.innerHTML = `
+                    <ol>Delitos más comunes:
+                        <li>Homicidios dolosos</li>
+                        <li>Robo y/o tentativa de robo</li> 
+                        <li>Violaciones</li> 
+                    </ol>
+                `
+                    lblProfesion.innerHTML = 'Capacitación laboral al ingresar: No tiene ni oficio ni profesión'
+                })
+
+            }, 1000)
+
+        }
+    </script>
+</body>
+
+</html>
